@@ -1,6 +1,8 @@
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 
+
+
 const date = new Date().toLocaleDateString();
 const hora = new Date().toLocaleTimeString();
 let origem = "";
@@ -9,27 +11,29 @@ let local = ''
 let resorigem = ''
 let resresponsavel = ''
 let reslocal = ''
-const rows = Array()
-async function getData() {
-  const res = await fetch('http://localhost:3333/equipamentos');
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
+interface Item {
+  id:string
+  patrimonio:string
+  descricao:string
+  motivo:string
+  serie:string
 
-  return res.json();
+  itens: any[]; // Tipo dos itens não especificado, defina-o conforme necessário.
+  relatorio: string;
+  dados: any[]; // Tipo dos dados não especificado, defina-o conforme necessário.
 }
 
+async function relatoriosPDF(relatorio: Item[]) {
+  const dados = relatorio.map((item: {patrimonio:string, descricao:string,motivo:string, serie:string}) => {
+    return [
+      {text: item.patrimonio},
+      {text:item.descricao},
+      {text:item.motivo},
+      {text:item.serie}
 
-async function relatoriosPDF() {
-  const data = await getData();
-  const dados = data.map((item: { patrimonio: any; descricao: any; motivo: any; serie: any; }) => ({
-    patrimonio: item.patrimonio,
-    descricao: item.descricao,
-    motivo: item.motivo,
-    serie: item.serie,
-  }));
-  
+    ];
+  });
  
   (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
   
@@ -44,7 +48,7 @@ async function relatoriosPDF() {
 },
 
  {
-  text: 'Defensoria Pública do Estado da Bahia',
+  text: 'Defensoria Pública do Estado da Bahia ' ,
   alignment: 'center',
   margin:[0, 10, 0, 0]
  },
@@ -89,6 +93,9 @@ async function relatoriosPDF() {
 },
 
 
+
+
+
   {
       fontSize: 9,
       margin:[0, 10, 0, 0],
@@ -98,13 +105,16 @@ async function relatoriosPDF() {
           body: [
              
              [
-              {text:'Patrimonio',style:'tableHeader',fontSize:10 ,bold:true},
-              {text:'Descrição',style:'tableHeader',fontSize:10,bold:true},
-              {text:'Motivo',style:'tableHeader',fontSize:10,bold:true},
-              {text:'Numero de serie',style:'tableHeader',fontSize:10,bold:true},
+              {text:'patrimonio',style:'tableHeader',fontSize:10 ,bold:true},
+              {text:'descricao',style:'tableHeader',fontSize:10 ,bold:true},
+              {text:'motivo',style:'tableHeader',fontSize:10 ,bold:true},
+              {text:'serie',style:'tableHeader',fontSize:10 ,bold:true},
+
+              
              ],
-             ...dados
+            ...dados
             ]
+            
       },
       layout: 'headerLineOnly'
   },
@@ -169,13 +179,16 @@ const images: { [key: string]: string } = {
 }
 
     
- 
- 
+
+interface v {
+  dados:[]
+}
 
   const docDefinitios:any = {
     pageSize: "A4",
     images:images,
-    content: details,    
+    content: details,
+    dados:dados
      
   };
   const pdf = await pdfMake.createPdf(docDefinitios)
