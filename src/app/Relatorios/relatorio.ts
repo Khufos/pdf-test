@@ -19,9 +19,9 @@ interface Item {
   motivo:string
   serie:string
 
-  itens: any[]; // Tipo dos itens não especificado, defina-o conforme necessário.
+  itens: any[]; 
   relatorio: string;
-  dados: any[]; // Tipo dos dados não especificado, defina-o conforme necessário.
+  dados: any[]; 
 }
 
 async function relatoriosPDF(relatorio: Item[]) {
